@@ -4,151 +4,209 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Emergency Weather Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 text-gray-800">
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #ffffff;
+      --card: #1e1e1e;
+      --accent: #00bcd4;
+    }
 
-  <header class="bg-blue-600 text-white p-4 text-center">
-    <h1 class="text-2xl font-bold">🌪️ Emergency Weather Dashboard</h1>
-    <p class="text-sm">Live forecasts, radar viewer, and preparedness tools</p>
-  </header>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-  <main class="p-4 space-y-4 max-w-3xl mx-auto">
+    header {
+      background: var(--card);
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
 
-    <!-- 🌍 City-Based Forecast Section -->
-    <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-xl font-bold mb-2">🌍 3-Day Forecast</h2>
-      <input
-        id="city-input"
-        type="text"
-        placeholder="Enter your city..."
-        class="w-full p-2 border rounded mb-2"
-        list="city-suggestions"
-        oninput="fetchCitySuggestions()"
-      />
-      <datalist id="city-suggestions"></datalist>
-      <button
-        onclick="getWeatherForecast()"
-        class="bg-blue-600 text-white px-4 py-2 rounded"
-      >
-        Get Forecast
-      </button>
-      <div id="forecast-output" class="mt-4"></div>
-    </section>
+    .container {
+      max-width: 1000px;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
 
-    <!-- 🌧️ Radar Viewer -->
-    <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-xl font-bold mb-2">🌧️ Radar Viewer</h2>
-      <iframe
-        src="https://embed.windy.com/embed2.html?lat=-20.0&lon=147.0&detailLat=-20.0&detailLon=147.0&width=650&height=450&zoom=5&level=surface&overlay=radar&menu=&message=true"
-        width="100%"
-        height="450"
-        frameborder="0"
-        title="Radar Viewer"
-        class="rounded"
-        allowfullscreen
-      ></iframe>
-    </section>
+    .card {
+      background: var(--card);
+      padding: 1rem;
+      border-radius: 10px;
+    }
 
-    <!-- 🧠 AI Weather Summary Panel -->
-    <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-xl font-bold mb-2">🧠 AI Weather Summary</h2>
-      <p>This panel will soon provide AI-generated summaries of your local weather.</p>
-    </section>
+    input, button, select {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 5px;
+      margin-top: 0.5rem;
+    }
 
-    <!-- 🧰 Preparedness Guides -->
-    <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-xl font-bold mb-2">🧰 Preparedness Guides</h2>
-      <ul class="list-disc pl-5">
-        <li><a href="#" class="text-blue-600 underline">Cyclone Preparation</a></li>
-        <li><a href="#" class="text-blue-600 underline">Flood Safety Tips</a></li>
-        <li><a href="#" class="text-blue-600 underline">Bushfire Survival Guide</a></li>
-      </ul>
-    </section>
+    #forecast-results {
+      margin-top: 1rem;
+    }
 
-    <!-- 📦 Supply Checklist Generator -->
-    <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-xl font-bold mb-2">📦 Supply Checklist</h2>
-      <ul class="list-disc pl-5">
-        <li>Water (at least 3 days' supply)</li>
-        <li>Non-perishable food</li>
-        <li>First aid kit</li>
-        <li>Flashlight & batteries</li>
-        <li>Emergency radio</li>
-      </ul>
-    </section>
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 10px;
+    }
 
-  </main>
+    @media (min-width: 768px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+      }
 
-  <footer class="bg-gray-200 text-center p-2 text-sm mt-6">
-    &copy; 2025 TrackingNQSevereWeather — Stay safe out there!
-  </footer>
-
-  <!-- JavaScript for Forecast + Autocomplete -->
-  <script>
-    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
-
-    async function fetchCitySuggestions() {
-      const input = document.getElementById("city-input").value;
-      if (!input || input.length < 2) return;
-
-      try {
-        const res = await fetch(
-          `https://api.openweathermap.org/geo/1.0/direct?q=${input}&limit=5&appid=${apiKey}`
-        );
-        const cities = await res.json();
-
-        const datalist = document.getElementById("city-suggestions");
-        datalist.innerHTML = "";
-
-        cities.forEach(city => {
-          const option = document.createElement("option");
-          option.value = `${city.name}, ${city.state || ""} ${city.country}`;
-          datalist.appendChild(option);
-        });
-      } catch (error) {
-        console.error("City autocomplete failed:", error);
+      .full {
+        grid-column: 1 / -1;
       }
     }
 
-    async function getWeatherForecast() {
-      const city = document.getElementById("city-input").value;
-      if (!city) return alert("Please enter a city.");
+    .autocomplete-suggestions {
+      background: var(--card);
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 5px;
+      border-radius: 5px;
+    }
 
-      try {
-        const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`);
-        const geoData = await geoRes.json();
-        if (!geoData.length) return alert("City not found.");
+    .autocomplete-suggestions div {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
 
-        const { lat, lon, name, state, country } = geoData[0];
+    .autocomplete-suggestions div:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+  <header>🌩️ Emergency Weather Dashboard</header>
+  <div class="container">
+    <div class="card full">
+      <h2>📍 Search Forecast</h2>
+      <input type="text" id="location" placeholder="Enter city..." />
+      <div id="suggestions" class="autocomplete-suggestions"></div>
+      <div id="forecast-results"></div>
+    </div>
 
-        const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`);
-        const weatherData = await weatherRes.json();
+    <div class="card full">
+      <h2>🌧️ Live Radar (RainViewer)</h2>
+      <iframe src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&opa=100&sm=1&sn=1&lat=-19.26&lng=146.82&z=7" loading="lazy"></iframe>
+    </div>
 
-        const forecastContainer = document.getElementById("forecast-output");
-        forecastContainer.innerHTML = `<h3 class="font-semibold mb-2">Forecast for ${name}, ${state || country}</h3>`;
+    <div class="card">
+      <h2>🧠 AI Weather Summary</h2>
+      <div id="ai-summary">Today’s weather is calm with moderate winds and possible rain showers in the evening. Stay alert if you're in storm-prone areas.</div>
+    </div>
 
-        const daily = weatherData.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 3);
-        const forecastHTML = daily.map(day => {
-          const date = new Date(day.dt_txt).toLocaleDateString();
-          const temp = day.main.temp.toFixed(1);
-          const weather = day.weather[0].description;
-          const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`;
+    <div class="card">
+      <h2>🧰 Cyclone Preparation</h2>
+      <ul>
+        <li>Secure outdoor items like furniture, bins, and loose objects.</li>
+        <li>Tape or board up windows and stay away from glass.</li>
+        <li>Have an evacuation plan and know your shelter location.</li>
+        <li>Charge phones and battery-powered devices.</li>
+        <li>Stock 3+ days of food, water, medicine, and supplies.</li>
+        <li>Listen to official weather alerts.</li>
+      </ul>
+    </div>
 
-          return `<div class="border p-2 rounded mb-2">
-            <strong>${date}</strong><br>
-            <img src="${icon}" alt="${weather}" class="inline w-10">
-            ${weather}, ${temp}°C
+    <div class="card">
+      <h2>🌊 Flood Safety Tips</h2>
+      <ul>
+        <li>Move to higher ground immediately during warnings.</li>
+        <li>Never enter floodwaters – on foot or in a vehicle.</li>
+        <li>Turn off electricity and gas if flooding is expected.</li>
+        <li>Keep valuables in waterproof containers.</li>
+        <li>Have a go-bag with essentials ready.</li>
+        <li>Follow emergency broadcasts and alerts.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>🔥 Bushfire Survival Guide</h2>
+      <ul>
+        <li>Create and practice a bushfire survival plan.</li>
+        <li>Clear gutters and remove flammable debris.</li>
+        <li>Stay informed and wear protective clothing.</li>
+        <li>Decide early whether to leave or defend.</li>
+        <li>If staying, have water, hoses, and backup plans.</li>
+        <li>Monitor local emergency sources.</li>
+      </ul>
+    </div>
+
+    <div class="card full">
+      <h2>📦 Supply Checklist Generator</h2>
+      <ul>
+        <li>✅ Water (3+ days)</li>
+        <li>✅ Non-perishable food</li>
+        <li>✅ Medications & First Aid</li>
+        <li>✅ Flashlight & Batteries</li>
+        <li>✅ Power Bank</li>
+        <li>✅ Radio (battery or hand crank)</li>
+        <li>✅ Identification & Documents</li>
+        <li>✅ Clothes & Blankets</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = '7498bac3fe87828473f5a0538b5e76c5';
+
+    document.getElementById("location").addEventListener("input", async function () {
+      const input = this.value;
+      const suggestionBox = document.getElementById("suggestions");
+      if (input.length < 2) {
+        suggestionBox.innerHTML = '';
+        return;
+      }
+
+      const res = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${input}&limit=5&appid=${apiKey}`);
+      const cities = await res.json();
+
+      suggestionBox.innerHTML = cities
+        .map(city => `<div data-lat="${city.lat}" data-lon="${city.lon}">${city.name}, ${city.country}</div>`)
+        .join('');
+
+      document.querySelectorAll("#suggestions div").forEach(div => {
+        div.addEventListener("click", () => {
+          const lat = div.getAttribute("data-lat");
+          const lon = div.getAttribute("data-lon");
+          document.getElementById("location").value = div.textContent;
+          suggestionBox.innerHTML = '';
+          fetchForecast(lat, lon);
+        });
+      });
+    });
+
+    async function fetchForecast(lat, lon) {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&cnt=24&appid=${apiKey}&units=metric`);
+      const data = await res.json();
+      const forecastDiv = document.getElementById("forecast-results");
+      forecastDiv.innerHTML = '';
+
+      for (let i = 0; i < data.list.length; i += 8) {
+        const item = data.list[i];
+        const date = new Date(item.dt * 1000).toDateString();
+        forecastDiv.innerHTML += `
+          <div>
+            <strong>${date}</strong>: ${item.weather[0].main} - ${item.main.temp}°C
           </div>`;
-        }).join("");
-
-        forecastContainer.innerHTML += forecastHTML;
-      } catch (error) {
-        console.error("Forecast error:", error);
-        alert("Failed to load forecast. Try again later.");
       }
     }
   </script>
-
 </body>
 </html>
+
