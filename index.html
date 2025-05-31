@@ -4,105 +4,108 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergency Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white font-sans">
+<body class="bg-gray-100 text-gray-800">
 
-  <!-- Header -->
-  <header class="bg-gray-800 p-4 text-xl font-bold">
-    🛰️ TrackingNQSevereWeather - Emergency Dashboard
+  <header class="bg-red-600 text-white p-4 shadow">
+    <h1 class="text-2xl font-bold">🌪️ Emergency Dashboard</h1>
+    <p class="text-sm">Stay informed and prepared</p>
   </header>
 
-  <!-- Main layout -->
-  <div class="flex flex-col lg:flex-row h-full">
+  <main class="p-4 max-w-4xl mx-auto space-y-8">
 
-    <!-- Sidebar -->
-    <aside class="bg-gray-800 w-full lg:w-64 p-4 space-y-2">
-      <nav class="space-y-2">
-        <a href="#radar" class="block hover:bg-gray-700 p-2 rounded">🌧️ Radar Viewer</a>
-        <a href="#warnings" class="block hover:bg-gray-700 p-2 rounded">⚠️ Live Warnings</a>
-        <a href="#outages" class="block hover:bg-gray-700 p-2 rounded">⚡ Power Outages</a>
-        <a href="#ai-summary" class="block hover:bg-gray-700 p-2 rounded">🧠 AI Summary</a>
-        <a href="#guides" class="block hover:bg-gray-700 p-2 rounded">🧰 Preparedness Guides</a>
-        <a href="#checklist" class="block hover:bg-gray-700 p-2 rounded">📦 Supply Checklist</a>
-        <a href="#shelters" class="block hover:bg-gray-700 p-2 rounded">🗺️ Shelter Map</a>
-      </nav>
-    </aside>
+    <!-- 🌍 City-Based Forecast Section -->
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-2">🌍 3-Day Forecast</h2>
+      <input
+        id="city-input"
+        type="text"
+        placeholder="Enter your city..."
+        class="w-full p-2 border rounded mb-4"
+      />
+      <button
+        onclick="getWeatherForecast()"
+        class="bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        Get Forecast
+      </button>
+      <div id="forecast-output" class="mt-4"></div>
+    </section>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-4 space-y-6">
-      
-      <!-- Radar -->
-      <section id="radar" class="bg-gray-800 rounded p-4">
-        <h2 class="text-lg font-semibold mb-2">🌧️ Radar Viewer</h2>
-        <iframe src="https://www.rainviewer.com/map.html" class="w-full h-80 rounded" frameborder="0"></iframe>
-      </section>
+    <!-- 🧠 AI Weather Summary (placeholder for future AI panel) -->
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-2">🧠 AI Weather Summary</h2>
+      <p>Coming soon: a smart overview of severe weather based on radar and forecasts.</p>
+    </section>
 
-      <!-- Live Warnings -->
-      <section id="warnings" class="bg-red-800 rounded p-4">
-        <h2 class="text-lg font-semibold mb-2">⚠️ Live Weather Warnings</h2>
-        <div id="warnings-content">Loading BoM warnings...</div>
-      </section>
+    <!-- 🧰 Preparedness Guides -->
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-2">🧰 Preparedness Guides</h2>
+      <ul class="list-disc pl-5">
+        <li><a href="#" class="text-blue-600 underline">Cyclone Safety Tips</a></li>
+        <li><a href="#" class="text-blue-600 underline">Flood Emergency Plan</a></li>
+        <li><a href="#" class="text-blue-600 underline">Bushfire Preparation</a></li>
+      </ul>
+    </section>
 
-      <!-- Power Outage Tracker -->
-      <section id="outages" class="bg-gray-800 rounded p-4">
-        <h2 class="text-lg font-semibold mb-2">⚡ Power Outage Tracker</h2>
-        <iframe src="https://outagemap.ergon.com.au" class="w-full h-80 rounded" frameborder="0"></iframe>
-      </section>
+    <!-- 📦 Supply Checklist Generator -->
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-2">📦 Supply Checklist Generator</h2>
+      <p>Coming soon: generate a checklist for emergencies based on your region and season.</p>
+    </section>
 
-      <!-- AI Summary -->
-      <section id="ai-summary" class="bg-gray-800 rounded p-4">
-        <h2 class="text-lg font-semibold mb-2">🧠 AI Weather Summary</h2>
-        <div id="ai-panel">No active threats at this time. Stay weather aware!</div>
-      </section>
+  </main>
 
-      <!-- Preparedness Guides -->
-      <section id="guides" class="bg-gray-800 rounded p-4">
-        <h2 class="text-lg font-semibold mb-2">🧰 Preparedness Guides</h2>
-        <ul class="list-disc ml-5">
-          <li><a href="https://www.qfes.qld.gov.au/prepare/fire" target="_blank" class="text-blue-400 underline">Bushfire Safety</a></li>
-          <li><a href="https://www.qfes.qld.gov.au/prepare/flood" target="_blank" class="text-blue-400 underline">Flood Preparedness</a></li>
-          <li><a href="https://www.qfes.qld.gov.au/prepare/cyclone" target="_blank" class="text-blue-400 underline">Cyclone Preparation</a></li>
-        </ul>
-      </section>
+  <footer class="bg-gray-200 text-center text-sm p-4 mt-10">
+    Made by TrackingNQSevereWeather © 2025
+  </footer>
 
-      <!-- Supply Checklist Generator -->
-      <section id="checklist" class="bg-gray-800 rounded p-4">
-        <h2 class="text-lg font-semibold mb-2">📦 Supply Checklist Generator</h2>
-        <button onclick="generateChecklist()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">Generate Checklist</button>
-        <ul id="checklist-items" class="mt-2 list-disc ml-5"></ul>
-      </section>
-
-      <!-- Shelter Map -->
-      <section id="shelters" class="bg-gray-800 rounded p-4">
-        <h2 class="text-lg font-semibold mb-2">🗺️ Map of Shelter Locations</h2>
-        <iframe src="https://www.google.com/maps/d/embed?mid=1s8uN5LtNY8b6PvEdsFeKmpjI9cs&hl=en" width="100%" height="400" frameborder="0"></iframe>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- Checklist Script -->
+  <!-- Forecast Script -->
   <script>
-    function generateChecklist() {
-      const items = [
-        "Water (3L per person per day)",
-        "Non-perishable food",
-        "Battery-powered radio",
-        "First-aid kit",
-        "Flashlight and extra batteries",
-        "Important documents",
-        "Medications"
-      ];
-      const ul = document.getElementById("checklist-items");
-      ul.innerHTML = "";
-      items.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        ul.appendChild(li);
-      });
+    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
+
+    async function getWeatherForecast() {
+      const city = document.getElementById("city-input").value;
+      if (!city) return alert("Please enter a city.");
+
+      try {
+        // Step 1: Get coordinates of the city
+        const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`);
+        const geoData = await geoRes.json();
+        if (!geoData.length) return alert("City not found.");
+
+        const { lat, lon, name, state, country } = geoData[0];
+
+        // Step 2: Get 3-day forecast
+        const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`);
+        const weatherData = await weatherRes.json();
+
+        const forecastContainer = document.getElementById("forecast-output");
+        forecastContainer.innerHTML = `<h3 class="font-semibold mb-2">Forecast for ${name}, ${state || country}</h3>`;
+
+        const daily = weatherData.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 3);
+        const forecastHTML = daily.map(day => {
+          const date = new Date(day.dt_txt).toLocaleDateString();
+          const temp = day.main.temp.toFixed(1);
+          const weather = day.weather[0].description;
+          const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`;
+
+          return `<div class="border p-2 rounded mb-2">
+            <strong>${date}</strong><br>
+            <img src="${icon}" alt="${weather}" class="inline w-10">
+            ${weather}, ${temp}°C
+          </div>`;
+        }).join("");
+
+        forecastContainer.innerHTML += forecastHTML;
+      } catch (error) {
+        console.error("Forecast error:", error);
+        alert("Failed to load forecast. Try again later.");
+      }
     }
   </script>
 
 </body>
 </html>
+
