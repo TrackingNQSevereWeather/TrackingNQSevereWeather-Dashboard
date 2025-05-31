@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emergency Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+  <!-- Header -->
+  <header class="bg-gray-800 p-4 text-xl font-bold">
+    🛰️ TrackingNQSevereWeather - Emergency Dashboard
+  </header>
+
+  <!-- Main layout -->
+  <div class="flex flex-col lg:flex-row h-full">
+
+    <!-- Sidebar -->
+    <aside class="bg-gray-800 w-full lg:w-64 p-4 space-y-2">
+      <nav class="space-y-2">
+        <a href="#radar" class="block hover:bg-gray-700 p-2 rounded">🌧️ Radar Viewer</a>
+        <a href="#warnings" class="block hover:bg-gray-700 p-2 rounded">⚠️ Live Warnings</a>
+        <a href="#outages" class="block hover:bg-gray-700 p-2 rounded">⚡ Power Outages</a>
+        <a href="#ai-summary" class="block hover:bg-gray-700 p-2 rounded">🧠 AI Summary</a>
+        <a href="#guides" class="block hover:bg-gray-700 p-2 rounded">🧰 Preparedness Guides</a>
+        <a href="#checklist" class="block hover:bg-gray-700 p-2 rounded">📦 Supply Checklist</a>
+        <a href="#shelters" class="block hover:bg-gray-700 p-2 rounded">🗺️ Shelter Map</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 space-y-6">
+      
+      <!-- Radar -->
+      <section id="radar" class="bg-gray-800 rounded p-4">
+        <h2 class="text-lg font-semibold mb-2">🌧️ Radar Viewer</h2>
+        <iframe src="https://www.rainviewer.com/map.html" class="w-full h-80 rounded" frameborder="0"></iframe>
+      </section>
+
+      <!-- Live Warnings -->
+      <section id="warnings" class="bg-red-800 rounded p-4">
+        <h2 class="text-lg font-semibold mb-2">⚠️ Live Weather Warnings</h2>
+        <div id="warnings-content">Loading BoM warnings...</div>
+      </section>
+
+      <!-- Power Outage Tracker -->
+      <section id="outages" class="bg-gray-800 rounded p-4">
+        <h2 class="text-lg font-semibold mb-2">⚡ Power Outage Tracker</h2>
+        <iframe src="https://outagemap.ergon.com.au" class="w-full h-80 rounded" frameborder="0"></iframe>
+      </section>
+
+      <!-- AI Summary -->
+      <section id="ai-summary" class="bg-gray-800 rounded p-4">
+        <h2 class="text-lg font-semibold mb-2">🧠 AI Weather Summary</h2>
+        <div id="ai-panel">No active threats at this time. Stay weather aware!</div>
+      </section>
+
+      <!-- Preparedness Guides -->
+      <section id="guides" class="bg-gray-800 rounded p-4">
+        <h2 class="text-lg font-semibold mb-2">🧰 Preparedness Guides</h2>
+        <ul class="list-disc ml-5">
+          <li><a href="https://www.qfes.qld.gov.au/prepare/fire" target="_blank" class="text-blue-400 underline">Bushfire Safety</a></li>
+          <li><a href="https://www.qfes.qld.gov.au/prepare/flood" target="_blank" class="text-blue-400 underline">Flood Preparedness</a></li>
+          <li><a href="https://www.qfes.qld.gov.au/prepare/cyclone" target="_blank" class="text-blue-400 underline">Cyclone Preparation</a></li>
+        </ul>
+      </section>
+
+      <!-- Supply Checklist Generator -->
+      <section id="checklist" class="bg-gray-800 rounded p-4">
+        <h2 class="text-lg font-semibold mb-2">📦 Supply Checklist Generator</h2>
+        <button onclick="generateChecklist()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">Generate Checklist</button>
+        <ul id="checklist-items" class="mt-2 list-disc ml-5"></ul>
+      </section>
+
+      <!-- Shelter Map -->
+      <section id="shelters" class="bg-gray-800 rounded p-4">
+        <h2 class="text-lg font-semibold mb-2">🗺️ Map of Shelter Locations</h2>
+        <iframe src="https://www.google.com/maps/d/embed?mid=1s8uN5LtNY8b6PvEdsFeKmpjI9cs&hl=en" width="100%" height="400" frameborder="0"></iframe>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Checklist Script -->
+  <script>
+    function generateChecklist() {
+      const items = [
+        "Water (3L per person per day)",
+        "Non-perishable food",
+        "Battery-powered radio",
+        "First-aid kit",
+        "Flashlight and extra batteries",
+        "Important documents",
+        "Medications"
+      ];
+      const ul = document.getElementById("checklist-items");
+      ul.innerHTML = "";
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        ul.appendChild(li);
+      });
+    }
+  </script>
+
+</body>
+</html>
