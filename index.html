@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emergency Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emergency Weather Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <header class="bg-red-600 text-white p-4 shadow">
-    <h1 class="text-2xl font-bold">🌪️ Emergency Dashboard</h1>
-    <p class="text-sm">Stay informed and prepared</p>
+  <header class="bg-blue-600 text-white p-4 text-center">
+    <h1 class="text-2xl font-bold">🌪️ Emergency Weather Dashboard</h1>
+    <p class="text-sm">Live forecasts, radar viewer, and preparedness tools</p>
   </header>
 
-  <main class="p-4 max-w-4xl mx-auto space-y-8">
+  <main class="p-4 space-y-4 max-w-3xl mx-auto">
 
     <!-- 🌍 City-Based Forecast Section -->
     <section class="bg-white p-4 rounded shadow">
@@ -22,8 +22,11 @@
         id="city-input"
         type="text"
         placeholder="Enter your city..."
-        class="w-full p-2 border rounded mb-4"
+        class="w-full p-2 border rounded mb-2"
+        list="city-suggestions"
+        oninput="fetchCitySuggestions()"
       />
+      <datalist id="city-suggestions"></datalist>
       <button
         onclick="getWeatherForecast()"
         class="bg-blue-600 text-white px-4 py-2 rounded"
@@ -33,51 +36,92 @@
       <div id="forecast-output" class="mt-4"></div>
     </section>
 
-    <!-- 🧠 AI Weather Summary (placeholder for future AI panel) -->
+    <!-- 🌧️ Radar Viewer -->
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-2">🌧️ Radar Viewer</h2>
+      <iframe
+        src="https://embed.windy.com/embed2.html?lat=-20.0&lon=147.0&detailLat=-20.0&detailLon=147.0&width=650&height=450&zoom=5&level=surface&overlay=radar&menu=&message=true"
+        width="100%"
+        height="450"
+        frameborder="0"
+        title="Radar Viewer"
+        class="rounded"
+        allowfullscreen
+      ></iframe>
+    </section>
+
+    <!-- 🧠 AI Weather Summary Panel -->
     <section class="bg-white p-4 rounded shadow">
       <h2 class="text-xl font-bold mb-2">🧠 AI Weather Summary</h2>
-      <p>Coming soon: a smart overview of severe weather based on radar and forecasts.</p>
+      <p>This panel will soon provide AI-generated summaries of your local weather.</p>
     </section>
 
     <!-- 🧰 Preparedness Guides -->
     <section class="bg-white p-4 rounded shadow">
       <h2 class="text-xl font-bold mb-2">🧰 Preparedness Guides</h2>
       <ul class="list-disc pl-5">
-        <li><a href="#" class="text-blue-600 underline">Cyclone Safety Tips</a></li>
-        <li><a href="#" class="text-blue-600 underline">Flood Emergency Plan</a></li>
-        <li><a href="#" class="text-blue-600 underline">Bushfire Preparation</a></li>
+        <li><a href="#" class="text-blue-600 underline">Cyclone Preparation</a></li>
+        <li><a href="#" class="text-blue-600 underline">Flood Safety Tips</a></li>
+        <li><a href="#" class="text-blue-600 underline">Bushfire Survival Guide</a></li>
       </ul>
     </section>
 
     <!-- 📦 Supply Checklist Generator -->
     <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-xl font-bold mb-2">📦 Supply Checklist Generator</h2>
-      <p>Coming soon: generate a checklist for emergencies based on your region and season.</p>
+      <h2 class="text-xl font-bold mb-2">📦 Supply Checklist</h2>
+      <ul class="list-disc pl-5">
+        <li>Water (at least 3 days' supply)</li>
+        <li>Non-perishable food</li>
+        <li>First aid kit</li>
+        <li>Flashlight & batteries</li>
+        <li>Emergency radio</li>
+      </ul>
     </section>
 
   </main>
 
-  <footer class="bg-gray-200 text-center text-sm p-4 mt-10">
-    Made by TrackingNQSevereWeather © 2025
+  <footer class="bg-gray-200 text-center p-2 text-sm mt-6">
+    &copy; 2025 TrackingNQSevereWeather — Stay safe out there!
   </footer>
 
-  <!-- Forecast Script -->
+  <!-- JavaScript for Forecast + Autocomplete -->
   <script>
     const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
+
+    async function fetchCitySuggestions() {
+      const input = document.getElementById("city-input").value;
+      if (!input || input.length < 2) return;
+
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/geo/1.0/direct?q=${input}&limit=5&appid=${apiKey}`
+        );
+        const cities = await res.json();
+
+        const datalist = document.getElementById("city-suggestions");
+        datalist.innerHTML = "";
+
+        cities.forEach(city => {
+          const option = document.createElement("option");
+          option.value = `${city.name}, ${city.state || ""} ${city.country}`;
+          datalist.appendChild(option);
+        });
+      } catch (error) {
+        console.error("City autocomplete failed:", error);
+      }
+    }
 
     async function getWeatherForecast() {
       const city = document.getElementById("city-input").value;
       if (!city) return alert("Please enter a city.");
 
       try {
-        // Step 1: Get coordinates of the city
         const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`);
         const geoData = await geoRes.json();
         if (!geoData.length) return alert("City not found.");
 
         const { lat, lon, name, state, country } = geoData[0];
 
-        // Step 2: Get 3-day forecast
         const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`);
         const weatherData = await weatherRes.json();
 
@@ -108,4 +152,3 @@
 
 </body>
 </html>
-
