@@ -59,10 +59,10 @@
       padding: 20px;
     }
 
-    input[type="text"] {
+    input[type="text"], select {
       padding: 10px;
-      width: 250px;
       font-size: 16px;
+      margin-right: 10px;
     }
 
     #forecast {
@@ -142,18 +142,6 @@
       color: white;
       cursor: pointer;
     }
-
-    .section {
-      margin-top: 30px;
-    }
-
-    .section h2 {
-      color: var(--accent-color);
-    }
-
-    .section ul {
-      padding-left: 20px;
-    }
   </style>
 </head>
 <body>
@@ -173,30 +161,16 @@
   <div class="container">
     <h2>🌤️ 3-Day Forecast</h2>
     <input type="text" id="cityInput" placeholder="Enter your city" />
+    <label for="forecastDays">📆 Show Forecast For:</label>
+    <select id="forecastDays">
+      <option value="1">1 Day</option>
+      <option value="2">2 Days</option>
+      <option value="3" selected>3 Days</option>
+    </select>
     <div id="forecast"></div>
 
     <h2>🌧️ Live Radar Viewer</h2>
     <iframe src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
-
-    <div class="section">
-      <h2>⚠️ AI Risk Level</h2>
-      <p>Current AI Risk Level: <strong>Moderate</strong></p>
-      <p>This assessment is based on simulated data and should be used for informational purposes only.</p>
-    </div>
-
-    <div class="section">
-      <h2>🔌 Power Outages</h2>
-      <ul>
-        <li><a href="https://www.energex.com.au/outages/outage-finder" target="_blank">Energex Outage Finder (QLD)</a></li>
-        <li><a href="https://www.ergon.com.au/network/outages/outage-finder/outage-finder-map" target="_blank">Ergon Outage Finder (QLD)</a></li>
-        <li><a href="https://poweroutage.us/" target="_blank">PowerOutage.us (USA)</a></li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>📡 NWS Warnings (USA)</h2>
-      <iframe src="https://alerts.weather.gov/" height="200"></iframe>
-    </div>
 
     <div class="guide">
       <h2>🧰 Emergency Preparedness Guides</h2>
@@ -239,6 +213,7 @@
 
     const savedMode = localStorage.getItem("mode") || "light";
     const savedTheme = localStorage.getItem("theme") || "classic";
+    document.body.classList.remove("light-mode", "dark-mode");
     document.body.classList.add(savedMode + "-mode");
     document.body.classList.add("theme-" + savedTheme);
     themeSelect.value = savedTheme;
@@ -262,29 +237,92 @@
     const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
     const input = document.getElementById("cityInput");
     const forecastEl = document.getElementById("forecast");
+    const forecastDaysSelect = document.getElementById("forecastDays");
+
+    function updateForecast(query) {
+      const daysToShow = parseInt(forecastDaysSelect.value);
+
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&appid=${apiKey}&units=metric`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cod !== "200") {
+            forecastEl.innerHTML = "<p>City not found.</p>";
+            return;
+          }
+
+          const daily = {};
+          data.list.forEach(item => {
+            const date = item.dt_txt.split(" ")[0];
+            if (!daily[date]) daily[date] = [];
+            daily[date].push(item);
+          });
+
+          const days = Object.keys(daily).slice(0, daysToShow);
+          forecastEl.innerHTML = days.map(date => {
+            const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
+            const description = daily[date][0].weather[0].description;
+            return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
+          }).join("");
+        });
+    }
 
     input.addEventListener("input", () => {
       const query = input.value;
       if (query.length > 2) {
-        fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&appid=${apiKey}&units=metric`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.cod !== "200") {
-              forecastEl.innerHTML = "<p>City not found.</p>";
-              return;
-            }
-            const daily = {};
-            data.list.forEach(item => {
-              const date = item.dt_txt.split(" ")[0];
-              if (!daily[date]) daily[date] = [];
-              daily[date].push(item);
-            });
-            const days = Object.keys(daily).slice(0, 3);
-            forecastEl.innerHTML = days.map(date => {
-              const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
-              const description = daily[date][0].weather[0].description;
-              return `<p><strong>${
-::contentReference[oaicite:13]{index=13}
+        updateForecast(query);
+      }
+    });
+
+    forecastDaysSelect.addEventListener("change", () => {
+      const query = input.value;
+      if (query.length > 2) {
+        updateForecast(query);
+      }
+    });
+
+    const header = document.getElementById("weatherBotHeader");
+    const chat = document.getElementById("weatherBotChat");
+    const botInput = document.getElementById("botInput");
+
+    header.addEventListener("click", () => {
+      chat.style.display = chat.style.display === "block" ? "none" : "block";
+    });
+
+    function offlineChatbot() {
+      const userMsg = botInput.value.trim().toLowerCase();
+      if (!userMsg) return;
+
+      addMsg("You", userMsg);
+
+      let response = "Sorry, I don't understand.";
+      if (userMsg.includes("flood")) {
+        response = "⚠️ Check the radar and local flood alerts. Stay safe and avoid low-lying areas.";
+      } else if (userMsg.includes("cyclone")) {
+        response = "🌀 Cyclone risk depends on your location. Check BoM alerts for real-time updates.";
+      } else if (userMsg.includes("fire") || userMsg.includes("bushfire")) {
+        response = "🔥 Fire danger? Prepare a bushfire survival plan and listen for emergency updates.";
+      } else if (userMsg.includes("stay home")) {
+        response = "🏠 If alerts are active or travel is unsafe, it's best to stay home.";
+      } else if (userMsg.includes("storm")) {
+        response = "⛈️ Check your radar and warnings. Storms may bring hail, strong wind, or flash flooding.";
+      }
+
+      addMsg("Bot", response);
+      botInput.value = "";
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function addMsg(sender, msg) {
+      chat.innerHTML += `<p><strong>${sender}:</strong> ${msg}</p>`;
+    }
+
+    botInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") offlineChatbot();
+    });
+  </script>
+</body>
+</html>
+
  
 
 
