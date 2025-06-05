@@ -142,6 +142,18 @@
       color: white;
       cursor: pointer;
     }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section h2 {
+      color: var(--accent-color);
+    }
+
+    .section ul {
+      padding-left: 20px;
+    }
   </style>
 </head>
 <body>
@@ -165,6 +177,26 @@
 
     <h2>🌧️ Live Radar Viewer</h2>
     <iframe src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
+
+    <div class="section">
+      <h2>⚠️ AI Risk Level</h2>
+      <p>Current AI Risk Level: <strong>Moderate</strong></p>
+      <p>This assessment is based on simulated data and should be used for informational purposes only.</p>
+    </div>
+
+    <div class="section">
+      <h2>🔌 Power Outages</h2>
+      <ul>
+        <li><a href="https://www.energex.com.au/outages/outage-finder" target="_blank">Energex Outage Finder (QLD)</a></li>
+        <li><a href="https://www.ergon.com.au/network/outages/outage-finder/outage-finder-map" target="_blank">Ergon Outage Finder (QLD)</a></li>
+        <li><a href="https://poweroutage.us/" target="_blank">PowerOutage.us (USA)</a></li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>📡 NWS Warnings (USA)</h2>
+      <iframe src="https://alerts.weather.gov/" height="200"></iframe>
+    </div>
 
     <div class="guide">
       <h2>🧰 Emergency Preparedness Guides</h2>
@@ -251,54 +283,8 @@
             forecastEl.innerHTML = days.map(date => {
               const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
               const description = daily[date][0].weather[0].description;
-              return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
-            }).join("");
-          });
-      }
-    });
-
-    const header = document.getElementById("weatherBotHeader");
-    const chat = document.getElementById("weatherBotChat");
-    const botInput = document.getElementById("botInput");
-
-    header.addEventListener("click", () => {
-      chat.style.display = chat.style.display === "block" ? "none" : "block";
-    });
-
-    function offlineChatbot() {
-      const userMsg = botInput.value.trim().toLowerCase();
-      if (!userMsg) return;
-
-      addMsg("You", userMsg);
-
-      let response = "Sorry, I don't understand.";
-      if (userMsg.includes("flood")) {
-        response = "⚠️ Check the radar and local flood alerts. Stay safe and avoid low-lying areas.";
-      } else if (userMsg.includes("cyclone")) {
-        response = "🌀 Cyclone risk depends on your location. Check BoM alerts for real-time updates.";
-      } else if (userMsg.includes("fire") || userMsg.includes("bushfire")) {
-        response = "🔥 Fire danger? Prepare a bushfire survival plan and listen for emergency updates.";
-      } else if (userMsg.includes("stay home")) {
-        response = "🏠 If alerts are active or travel is unsafe, it's best to stay home.";
-      } else if (userMsg.includes("storm")) {
-        response = "⛈️ Check your radar and warnings. Storms may bring hail, strong wind, or flash flooding.";
-      }
-
-      addMsg("Bot", response);
-      botInput.value = "";
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function addMsg(sender, msg) {
-      chat.innerHTML += `<p><strong>${sender}:</strong> ${msg}</p>`;
-    }
-
-    botInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") offlineChatbot();
-    });
-  </script>
-</body>
-</html>
-
+              return `<p><strong>${
+::contentReference[oaicite:13]{index=13}
+ 
 
 
