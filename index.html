@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergency Weather Dashboard</title>
   <style>
     :root {
@@ -56,16 +56,20 @@
       margin-top: 20px;
     }
 
-    .section {
+    .guide, .checklist {
       margin-top: 30px;
     }
 
-    .section h2 {
+    h2, h3 {
       color: var(--accent-color);
+    }
+
+    ul {
+      padding-left: 20px;
     }
   </style>
 </head>
-<body class="light-mode">
+<body>
   <header>
     <div>
       <label for="themeSelect">🌈 Theme:</label>
@@ -87,28 +91,50 @@
     <h2>🌧️ Live Radar Viewer</h2>
     <iframe id="radarFrame" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
 
-    <div class="section">
-      <h2>🚦 Road Closures & Traffic Impacts</h2>
-      <label for="trafficSelect">Choose Region:</label>
-      <select id="trafficSelect">
-        <option value="nsw">NSW</option>
-        <option value="qld">QLD</option>
-        <option value="usa">USA</option>
-      </select>
-      <div id="trafficFrameContainer">
-        <iframe id="trafficFrame" src="https://www.livetraffic.com/desktop.html" title="Traffic NSW"></iframe>
-      </div>
+    <h2>🧰 Emergency Preparedness Guides</h2>
+    <div class="guide">
+      <h3>🌀 Cyclone Preparation</h3>
+      <ul>
+        <li>Trim trees and secure loose items around your home.</li>
+        <li>Have an evacuation plan and know your zone.</li>
+        <li>Store food, water, and emergency supplies for 3 days.</li>
+      </ul>
+      <h3>🌊 Flood Safety Tips</h3>
+      <ul>
+        <li>Never drive or walk through floodwaters.</li>
+        <li>Move valuables and electronics to higher ground.</li>
+        <li>Prepare sandbags if flooding is expected.</li>
+      </ul>
+      <h3>🔥 Bushfire Survival Guide</h3>
+      <ul>
+        <li>Clear gutters and remove dry vegetation around your home.</li>
+        <li>Have a bushfire survival plan ready for your family.</li>
+        <li>Listen to emergency broadcasts and leave early if needed.</li>
+      </ul>
     </div>
 
-    <div class="section">
-      <h2>🧪 Local Weather Station Feed</h2>
-      <iframe src="https://www.wunderground.com/dashboard/pws/ICAIRNS45" title="Local Station"></iframe>
+    <h2>📋 Supply Checklist Generator</h2>
+    <div class="checklist">
+      <ul>
+        <li>First Aid Kit</li>
+        <li>Non-perishable food & water</li>
+        <li>Flashlights and spare batteries</li>
+        <li>Essential medicines</li>
+        <li>Battery-powered radio</li>
+      </ul>
     </div>
 
-    <div class="section">
-      <h2>📋 Supply Checklist Generator</h2>
-      <iframe src="https://www.ready.gov/kit" title="Checklist Generator"></iframe>
-    </div>
+    <h2>🚦 Live Traffic Cameras</h2>
+    <iframe src="https://livetraffic.com/desktop.html" title="Traffic Cameras"></iframe>
+
+    <h2>🌐 Disaster Information Links</h2>
+    <select onchange="window.open(this.value, '_blank')">
+      <option selected disabled>Choose a country</option>
+      <option value="https://www.weather.gov/">🇺🇸 US: National Weather Service</option>
+      <option value="https://www.disaster.qld.gov.au/">🇦🇺 QLD: QLD Disaster Dashboard</option>
+      <option value="https://www.emergency.vic.gov.au/">🇦🇺 VIC: Emergency VIC</option>
+      <option value="https://www.ses.nsw.gov.au/">🇦🇺 NSW: SES</option>
+    </select>
   </div>
 
   <script>
@@ -118,7 +144,6 @@
     const savedMode = localStorage.getItem("mode") || "light";
     const savedTheme = localStorage.getItem("theme") || "classic";
     document.body.classList.add(savedMode + "-mode");
-    document.body.classList.add("theme-" + savedTheme);
     themeSelect.value = savedTheme;
     toggleBtn.textContent = savedMode === "dark" ? "☀️" : "🌙";
 
@@ -132,13 +157,14 @@
 
     themeSelect.addEventListener("change", (e) => {
       const theme = e.target.value;
-      document.body.className = document.body.className.replace(/theme-[^ ]+/, "theme-" + theme);
+      document.body.style.setProperty('--accent-color', getComputedStyle(document.body).getPropertyValue(`--${theme}-color`) || '#0066cc');
       localStorage.setItem("theme", theme);
     });
 
     const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
     const input = document.getElementById("cityInput");
     const forecastEl = document.getElementById("forecast");
+    const radarFrame = document.getElementById("radarFrame");
 
     input.addEventListener("input", () => {
       const query = input.value;
@@ -162,39 +188,16 @@
               const description = daily[date][0].weather[0].description;
               return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
             }).join("");
+
+            if (query.toLowerCase().includes("australia")) {
+              radarFrame.src = "https://www.rainviewer.com/map.html?loc=AU&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
+            }
           });
-      }
-    });
-
-    const radarFrame = document.getElementById("radarFrame");
-    input.addEventListener("change", () => {
-      if (input.value.toLowerCase().includes("australia")) {
-        radarFrame.src = "https://www.rainviewer.com/map.html?loc=au&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
-      } else {
-        radarFrame.src = "https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
-      }
-    });
-
-    const trafficSelect = document.getElementById("trafficSelect");
-    const trafficFrame = document.getElementById("trafficFrame");
-
-    trafficSelect.addEventListener("change", () => {
-      switch (trafficSelect.value) {
-        case "nsw":
-          trafficFrame.src = "https://www.livetraffic.com/desktop.html";
-          break;
-        case "qld":
-          trafficFrame.src = "https://qldtraffic.qld.gov.au";
-          break;
-        case "usa":
-          trafficFrame.src = "https://www.sigalert.com";
-          break;
       }
     });
   </script>
 </body>
 </html>
-
 
 
 
