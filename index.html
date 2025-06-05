@@ -12,33 +12,8 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      transition: background 0.3s, color 0.3s;
-    }
-
-    body.light-mode {
       background-color: #f0f0f0;
       color: #111;
-    }
-
-    body.dark-mode {
-      background-color: #121212;
-      color: #eee;
-    }
-
-    body.theme-classic {
-      --accent-color: #0066cc;
-    }
-
-    body.theme-cyclone {
-      --accent-color: #2a3f66;
-    }
-
-    body.theme-flood {
-      --accent-color: #44b7c2;
-    }
-
-    body.theme-bushfire {
-      --accent-color: #b02e0c;
     }
 
     header {
@@ -48,64 +23,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     header select, header button {
+      margin: 5px;
       padding: 5px 10px;
       font-size: 14px;
     }
 
-    .alert-bar {
-      background-color: #cc0000;
-      color: white;
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
-    }
-
-    .main-layout {
+    .layout {
       display: flex;
-    }
-
-    .sidebar {
-      background-color: #1e1e1e;
-      min-width: 200px;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: auto;
       padding: 20px;
-      color: white;
-    }
-
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .sidebar li {
-      margin-bottom: 10px;
-    }
-
-    .sidebar a {
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-    }
-
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-
-    .container {
-      padding: 20px;
-      flex-grow: 1;
     }
 
     input[type="text"] {
       padding: 10px;
-      width: 250px;
+      width: 100%;
       font-size: 16px;
-    }
-
-    #forecast {
-      margin-top: 15px;
+      margin-bottom: 10px;
     }
 
     iframe {
@@ -115,22 +54,25 @@
       margin-top: 20px;
     }
 
-    .guide {
+    .section {
       margin-top: 30px;
     }
 
-    .guide h3 {
+    .section h2 {
       color: var(--accent-color);
     }
 
-    .guide ul {
+    .guide ul, .disaster-links ul {
       padding-left: 20px;
+    }
+
+    .disaster-links a {
+      display: block;
+      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="alert-bar">⚠️ A Severe Weather Warning is in effect for your area.</div>
-
   <header>
     <div>
       <label for="themeSelect">🌈 Theme:</label>
@@ -141,118 +83,80 @@
         <option value="bushfire">Bushfire</option>
       </select>
     </div>
+    <div>
+      <label for="regionSelect">🌍 Region:</label>
+      <select id="regionSelect">
+        <option value="AU">Australia</option>
+        <option value="US">United States</option>
+      </select>
+    </div>
     <button id="themeToggle">🌙</button>
   </header>
 
-  <div class="main-layout">
-    <nav class="sidebar">
-      <ul>
-        <li><a href="#forecast">🌤️ Forecast</a></li>
-        <li><a href="#radar">📡 Radar</a></li>
-        <li><a href="#guides">🧰 Guides</a></li>
-      </ul>
-    </nav>
+  <div class="layout">
+    <div class="section">
+      <h2>🌤️ 3-Day Forecast</h2>
+      <input type="text" id="cityInput" placeholder="Enter your city" />
+      <div id="forecastOutput">Enter a city to view the forecast.</div>
+    </div>
 
-    <div class="container">
-      <h2 id="forecast">🌤️ 3-Day Forecast</h2>
-      <input type="text" id="cityInput" placeholder="Enter your city (optional)" />
-      <div id="forecastOutput">Loading your location-based forecast...</div>
-
-      <h2 id="radar">🌧️ Live Radar Viewer</h2>
+    <div class="section">
+      <h2>🌧️ Live Radar Viewer</h2>
       <iframe src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
+    </div>
 
-      <div class="guide" id="guides">
-        <h2>🧰 Emergency Preparedness Guides</h2>
+    <div class="section guide">
+      <h2>🧰 Emergency Preparedness Guides</h2>
+      <h3>🌀 Cyclone Preparation</h3>
+      <ul>
+        <li>Trim trees and secure loose items around your home.</li>
+        <li>Have an evacuation plan and know your zone.</li>
+        <li>Store food, water, and emergency supplies for 3 days.</li>
+      </ul>
+      <h3>🌊 Flood Safety Tips</h3>
+      <ul>
+        <li>Never drive or walk through floodwaters.</li>
+        <li>Move valuables and electronics to higher ground.</li>
+        <li>Prepare sandbags if flooding is expected.</li>
+      </ul>
+      <h3>🔥 Bushfire Survival Guide</h3>
+      <ul>
+        <li>Clear gutters and remove dry vegetation around your home.</li>
+        <li>Have a bushfire survival plan ready for your family.</li>
+        <li>Listen to emergency broadcasts and leave early if needed.</li>
+      </ul>
+    </div>
 
-        <h3>🌀 Cyclone Preparation</h3>
-        <ul>
-          <li>Trim trees and secure loose items around your home.</li>
-          <li>Have an evacuation plan and know your zone.</li>
-          <li>Store food, water, and emergency supplies for 3 days.</li>
-        </ul>
-
-        <h3>🌊 Flood Safety Tips</h3>
-        <ul>
-          <li>Never drive or walk through floodwaters.</li>
-          <li>Move valuables and electronics to higher ground.</li>
-          <li>Prepare sandbags if flooding is expected.</li>
-        </ul>
-
-        <h3>🔥 Bushfire Survival Guide</h3>
-        <ul>
-          <li>Clear gutters and remove dry vegetation around your home.</li>
-          <li>Have a bushfire survival plan ready for your family.</li>
-          <li>Listen to emergency broadcasts and leave early if needed.</li>
-        </ul>
-      </div>
+    <div class="section disaster-links">
+      <h2>🚨 Disaster Information Links</h2>
+      <div id="linksContainer">Select your region to view disaster links.</div>
     </div>
   </div>
 
   <script>
-    const toggleBtn = document.getElementById("themeToggle");
+    const themeToggle = document.getElementById("themeToggle");
     const themeSelect = document.getElementById("themeSelect");
+    const regionSelect = document.getElementById("regionSelect");
     const forecastEl = document.getElementById("forecastOutput");
     const input = document.getElementById("cityInput");
+    const linksContainer = document.getElementById("linksContainer");
+
     const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
 
-    // Theme loading
-    const savedMode = localStorage.getItem("mode") || "light";
-    const savedTheme = localStorage.getItem("theme") || "classic";
-    document.body.classList.add(savedMode + "-mode");
-    document.body.classList.add("theme-" + savedTheme);
-    themeSelect.value = savedTheme;
-    toggleBtn.textContent = savedMode === "dark" ? "☀️" : "🌙";
+    document.body.classList.add("light-mode", "theme-classic");
 
-    toggleBtn.addEventListener("click", () => {
+    themeToggle.addEventListener("click", () => {
       document.body.classList.toggle("light-mode");
       document.body.classList.toggle("dark-mode");
-      const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
-      toggleBtn.textContent = mode === "dark" ? "☀️" : "🌙";
-      localStorage.setItem("mode", mode);
+      themeToggle.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
     });
 
-    themeSelect.addEventListener("change", (e) => {
-      const theme = e.target.value;
-      document.body.classList.remove("theme-classic", "theme-cyclone", "theme-flood", "theme-bushfire");
-      document.body.classList.add("theme-" + theme);
-      localStorage.setItem("theme", theme);
+    themeSelect.addEventListener("change", e => {
+      document.body.className = `${document.body.classList.contains("dark-mode") ? "dark-mode" : "light-mode"} theme-${e.target.value}`;
     });
-
-    function getForecastByCoords(lat, lon) {
-      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.cod !== "200") {
-            forecastEl.innerHTML = "<p>Weather data not available.</p>";
-            return;
-          }
-          const daily = {};
-          data.list.forEach(item => {
-            const date = item.dt_txt.split(" ")[0];
-            if (!daily[date]) daily[date] = [];
-            daily[date].push(item);
-          });
-          const days = Object.keys(daily).slice(0, 3);
-          forecastEl.innerHTML = days.map(date => {
-            const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
-            const description = daily[date][0].weather[0].description;
-            return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
-          }).join("");
-        });
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        getForecastByCoords(latitude, longitude);
-      },
-      (error) => {
-        forecastEl.innerHTML = "<p>Location access denied. Please enter your city above.</p>";
-      }
-    );
 
     input.addEventListener("input", () => {
-      const query = input.value;
+      const query = input.value.trim();
       if (query.length > 2) {
         fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&appid=${apiKey}&units=metric`)
           .then(res => res.json())
@@ -276,10 +180,29 @@
           });
       }
     });
+
+    regionSelect.addEventListener("change", e => {
+      const code = e.target.value;
+      let links = "";
+      if (code === "AU") {
+        links = `
+          <a href="https://www.bom.gov.au/alerts/" target="_blank">BoM National Warnings</a>
+          <a href="https://www.qfes.qld.gov.au/" target="_blank">Queensland Fire & Emergency</a>
+          <a href="https://disaster.qld.gov.au/" target="_blank">QLD Disaster Dashboard</a>
+        `;
+      } else if (code === "US") {
+        links = `
+          <a href="https://www.weather.gov/alerts" target="_blank">NWS National Alerts</a>
+          <a href="https://www.ready.gov/" target="_blank">Ready.gov</a>
+          <a href="https://www.fema.gov/disaster" target="_blank">FEMA Disaster Info</a>
+          <a href="https://community.fema.gov/ProtectiveActions/s/" target="_blank">FEMA Protective Actions</a>
+          <a href="https://www.cdc.gov/disasters/" target="_blank">CDC Disaster Safety</a>
+        `;
+      }
+      linksContainer.innerHTML = links;
+    });
   </script>
 </body>
 </html>
-
-
 
 
