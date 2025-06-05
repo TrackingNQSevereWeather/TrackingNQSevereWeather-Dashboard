@@ -4,200 +4,223 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergency Weather Dashboard</title>
+  <link rel="manifest" href="manifest.json">
   <style>
     :root {
       --accent-color: #0066cc;
+      --bg-light: #f0f0f0;
+      --bg-dark: #121212;
+      --text-light: #111;
+      --text-dark: #eee;
     }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
       transition: background 0.3s, color 0.3s;
     }
 
-    body.light-mode {
-      background-color: #f0f0f0;
-      color: #111;
-    }
-
     body.dark-mode {
-      background-color: #121212;
-      color: #eee;
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
     }
 
     header {
       background-color: var(--accent-color);
       color: #fff;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.3rem;
+      position: sticky;
+      top: 0;
+      z-index: 999;
     }
 
-    header select, header button {
-      padding: 5px 10px;
-      font-size: 14px;
+    #toggleMode {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
     }
 
     .container {
+      flex: 1;
       padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-top: 1.5rem;
+      border-left: 4px solid var(--accent-color);
+      padding-left: 8px;
     }
 
     input[type="text"] {
+      width: 100%;
       padding: 10px;
-      width: 250px;
+      margin-top: 5px;
       font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
     iframe {
       width: 100%;
-      height: 400px;
+      height: 300px;
       border: none;
-      margin-top: 20px;
+      margin-top: 10px;
+      border-radius: 10px;
     }
 
-    .guide, .checklist {
-      margin-top: 30px;
+    #forecast, #riskLevel {
+      margin-top: 15px;
+      font-size: 0.95rem;
+      line-height: 1.4;
     }
 
-    h2, h3 {
-      color: var(--accent-color);
+    #riskLevel {
+      font-weight: bold;
+      color: red;
     }
 
-    ul {
-      padding-left: 20px;
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    footer {
+      background-color: var(--accent-color);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+
+    iframe.low-bandwidth {
+      display: none;
     }
   </style>
 </head>
 <body>
   <header>
-    <div>
-      <label for="themeSelect">🌈 Theme:</label>
-      <select id="themeSelect">
-        <option value="classic">Classic</option>
-        <option value="cyclone">Cyclone</option>
-        <option value="flood">Flood</option>
-        <option value="bushfire">Bushfire</option>
-      </select>
-    </div>
-    <button id="themeToggle">🌙</button>
+    Emergency Weather Dashboard
+    <button id="toggleMode">🌙</button>
   </header>
 
   <div class="container">
-    <h2>🌤️ 3-Day Forecast</h2>
+    <h2>3-Day Forecast</h2>
     <input type="text" id="cityInput" placeholder="Enter your city" />
+    <button onclick="saveLocation()">📌 Save Location</button>
     <div id="forecast"></div>
 
-    <h2>🌧️ Live Radar Viewer</h2>
-    <iframe id="radarFrame" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
+    <h2>My Risk Level</h2>
+    <div id="riskLevel">Loading risk level...</div>
 
-    <h2>🧰 Emergency Preparedness Guides</h2>
-    <div class="guide">
-      <h3>🌀 Cyclone Preparation</h3>
-      <ul>
-        <li>Trim trees and secure loose items around your home.</li>
-        <li>Have an evacuation plan and know your zone.</li>
-        <li>Store food, water, and emergency supplies for 3 days.</li>
-      </ul>
-      <h3>🌊 Flood Safety Tips</h3>
-      <ul>
-        <li>Never drive or walk through floodwaters.</li>
-        <li>Move valuables and electronics to higher ground.</li>
-        <li>Prepare sandbags if flooding is expected.</li>
-      </ul>
-      <h3>🔥 Bushfire Survival Guide</h3>
-      <ul>
-        <li>Clear gutters and remove dry vegetation around your home.</li>
-        <li>Have a bushfire survival plan ready for your family.</li>
-        <li>Listen to emergency broadcasts and leave early if needed.</li>
-      </ul>
-    </div>
-
-    <h2>📋 Supply Checklist Generator</h2>
-    <div class="checklist">
-      <ul>
-        <li>First Aid Kit</li>
-        <li>Non-perishable food & water</li>
-        <li>Flashlights and spare batteries</li>
-        <li>Essential medicines</li>
-        <li>Battery-powered radio</li>
-      </ul>
-    </div>
-
-    <h2>🚦 Live Traffic Cameras</h2>
-    <iframe src="https://livetraffic.com/desktop.html" title="Traffic Cameras"></iframe>
-
-    <h2>🌐 Disaster Information Links</h2>
-    <select onchange="window.open(this.value, '_blank')">
-      <option selected disabled>Choose a country</option>
-      <option value="https://www.weather.gov/">🇺🇸 US: National Weather Service</option>
-      <option value="https://www.disaster.qld.gov.au/">🇦🇺 QLD: QLD Disaster Dashboard</option>
-      <option value="https://www.emergency.vic.gov.au/">🇦🇺 VIC: Emergency VIC</option>
-      <option value="https://www.ses.nsw.gov.au/">🇦🇺 NSW: SES</option>
-    </select>
+    <h2>Radar Viewer</h2>
+    <label><input type="checkbox" id="bandwidthToggle"> Low Bandwidth Mode</label>
+    <iframe id="radar" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1"></iframe>
+    <iframe id="radarLow" class="low-bandwidth" src=""></iframe>
   </div>
 
+  <footer>
+    Powered by GPO • Mobile Ready • Stay Safe
+  </footer>
+
   <script>
-    const toggleBtn = document.getElementById("themeToggle");
-    const themeSelect = document.getElementById("themeSelect");
-
-    const savedMode = localStorage.getItem("mode") || "light";
-    const savedTheme = localStorage.getItem("theme") || "classic";
-    document.body.classList.add(savedMode + "-mode");
-    themeSelect.value = savedTheme;
-    toggleBtn.textContent = savedMode === "dark" ? "☀️" : "🌙";
-
+    const toggleBtn = document.getElementById("toggleMode");
     toggleBtn.addEventListener("click", () => {
-      document.body.classList.toggle("light-mode");
       document.body.classList.toggle("dark-mode");
-      const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
-      toggleBtn.textContent = mode === "dark" ? "☀️" : "🌙";
-      localStorage.setItem("mode", mode);
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
     });
 
-    themeSelect.addEventListener("change", (e) => {
-      const theme = e.target.value;
-      document.body.style.setProperty('--accent-color', getComputedStyle(document.body).getPropertyValue(`--${theme}-color`) || '#0066cc');
-      localStorage.setItem("theme", theme);
-    });
+    function saveLocation() {
+      const city = document.getElementById("cityInput").value;
+      if (city) localStorage.setItem("savedCity", city);
+    }
 
-    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
-    const input = document.getElementById("cityInput");
-    const forecastEl = document.getElementById("forecast");
-    const radarFrame = document.getElementById("radarFrame");
-
-    input.addEventListener("input", () => {
-      const query = input.value;
-      if (query.length > 2) {
-        fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&appid=${apiKey}&units=metric`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.cod !== "200") {
-              forecastEl.innerHTML = "<p>City not found.</p>";
-              return;
-            }
-            const daily = {};
-            data.list.forEach(item => {
-              const date = item.dt_txt.split(" ")[0];
-              if (!daily[date]) daily[date] = [];
-              daily[date].push(item);
-            });
-            const days = Object.keys(daily).slice(0, 3);
-            forecastEl.innerHTML = days.map(date => {
-              const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
-              const description = daily[date][0].weather[0].description;
-              return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
-            }).join("");
-
-            if (query.toLowerCase().includes("australia")) {
-              radarFrame.src = "https://www.rainviewer.com/map.html?loc=AU&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
-            }
-          });
+    window.addEventListener("load", () => {
+      const savedCity = localStorage.getItem("savedCity");
+      if (savedCity) {
+        document.getElementById("cityInput").value = savedCity;
+        fetchForecast(savedCity);
       }
+    });
+
+    document.getElementById("cityInput").addEventListener("input", (e) => {
+      fetchForecast(e.target.value);
+    });
+
+    function fetchForecast(city) {
+      const key = '7498bac3fe87828473f5a0538b5e76c5';
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${key}&units=metric`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cod !== "200") return;
+          let forecastText = '';
+          let temps = [];
+          data.list.slice(0, 3).forEach(item => {
+            forecastText += `<p>${item.dt_txt.split(' ')[0]}: ${item.weather[0].description}, ${item.main.temp}°C</p>`;
+            temps.push(item.main.temp);
+          });
+          document.getElementById("forecast").innerHTML = forecastText;
+          updateRiskLevel(temps);
+        });
+    }
+
+    function updateRiskLevel(temps) {
+      const avg = temps.reduce((a, b) => a + b, 0) / temps.length;
+      let risk = "Low";
+      if (avg > 35) risk = "Extreme Heat";
+      if (avg < 5) risk = "Cold Risk";
+      document.getElementById("riskLevel").innerText = `AI Risk Level: ${risk}`;
+    }
+
+    document.getElementById("bandwidthToggle").addEventListener("change", (e) => {
+      document.getElementById("radar").style.display = e.target.checked ? "none" : "block";
+      document.getElementById("radarLow").style.display = e.target.checked ? "block" : "none";
+    });
+
+    // Add to home screen prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.createElement("button");
+      installBtn.innerText = "📲 Add to Home Screen";
+      installBtn.onclick = () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+        });
+      };
+      document.body.appendChild(installBtn);
     });
   </script>
 </body>
 </html>
+
 
 
 
