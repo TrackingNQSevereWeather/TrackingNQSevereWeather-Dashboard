@@ -61,8 +61,9 @@
 
     input[type="text"], select {
       padding: 10px;
+      width: 250px;
       font-size: 16px;
-      margin-right: 10px;
+      margin-top: 5px;
     }
 
     #forecast {
@@ -88,59 +89,8 @@
       padding-left: 20px;
     }
 
-    #weatherBot {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 280px;
-      background: #1e1e1e;
-      color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      z-index: 9999;
-    }
-
-    #weatherBotHeader {
-      background: #007acc;
-      padding: 10px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    #weatherBotChat {
-      display: none;
-      max-height: 300px;
-      overflow-y: auto;
-      padding: 10px;
-      background: #2b2b2b;
-    }
-
-    #weatherBotChat p {
-      margin: 5px 0;
-    }
-
-    #weatherBotInput {
-      display: flex;
-      border-top: 1px solid #444;
-    }
-
-    #weatherBotInput input {
-      flex: 1;
-      padding: 10px;
-      background: #121212;
-      color: white;
-      border: none;
-      outline: none;
-    }
-
-    #weatherBotInput button {
-      padding: 10px;
-      background: #007acc;
-      border: none;
-      color: white;
-      cursor: pointer;
+    #checklistOutput {
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -159,37 +109,37 @@
   </header>
 
   <div class="container">
-    <h2>🌤️ 3-Day Forecast</h2>
+    <h2>🌤️ 2-Day Forecast</h2>
     <input type="text" id="cityInput" placeholder="Enter your city" />
-    <label for="forecastDays">📆 Show Forecast For:</label>
-    <select id="forecastDays">
-      <option value="1">1 Day</option>
-      <option value="2">2 Days</option>
-      <option value="3" selected>3 Days</option>
-    </select>
     <div id="forecast"></div>
 
     <h2>🌧️ Live Radar Viewer</h2>
-    <iframe src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
+    <iframe id="radarFrame" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
 
     <div class="guide">
-      <h2>🧰 Emergency Preparedness Guides</h2>
+      <h2>📋 Emergency Supply Checklist Generator</h2>
+      <select id="threatSelect">
+        <option value="">Select a threat type</option>
+        <option value="cyclone">Cyclone</option>
+        <option value="flood">Flood</option>
+        <option value="bushfire">Bushfire</option>
+      </select>
+      <div id="checklistOutput"></div>
 
-      <h3>🌀 Cyclone Preparation</h3>
+      <h3>🧰 Emergency Preparedness Guides</h3>
+      <h4>🌀 Cyclone Preparation</h4>
       <ul>
         <li>Trim trees and secure loose items around your home.</li>
         <li>Have an evacuation plan and know your zone.</li>
         <li>Store food, water, and emergency supplies for 3 days.</li>
       </ul>
-
-      <h3>🌊 Flood Safety Tips</h3>
+      <h4>🌊 Flood Safety Tips</h4>
       <ul>
         <li>Never drive or walk through floodwaters.</li>
         <li>Move valuables and electronics to higher ground.</li>
         <li>Prepare sandbags if flooding is expected.</li>
       </ul>
-
-      <h3>🔥 Bushfire Survival Guide</h3>
+      <h4>🔥 Bushfire Survival Guide</h4>
       <ul>
         <li>Clear gutters and remove dry vegetation around your home.</li>
         <li>Have a bushfire survival plan ready for your family.</li>
@@ -198,22 +148,13 @@
     </div>
   </div>
 
-  <div id="weatherBot">
-    <div id="weatherBotHeader">🤖 WeatherBot</div>
-    <div id="weatherBotChat"></div>
-    <div id="weatherBotInput">
-      <input type="text" id="botInput" placeholder="Ask something..." />
-      <button onclick="offlineChatbot()">Send</button>
-    </div>
-  </div>
-
   <script>
+    // Theme handling
     const toggleBtn = document.getElementById("themeToggle");
     const themeSelect = document.getElementById("themeSelect");
 
     const savedMode = localStorage.getItem("mode") || "light";
     const savedTheme = localStorage.getItem("theme") || "classic";
-    document.body.classList.remove("light-mode", "dark-mode");
     document.body.classList.add(savedMode + "-mode");
     document.body.classList.add("theme-" + savedTheme);
     themeSelect.value = savedTheme;
@@ -234,30 +175,28 @@
       localStorage.setItem("theme", theme);
     });
 
-    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
+    // Forecast + Radar + Geolocation
     const input = document.getElementById("cityInput");
     const forecastEl = document.getElementById("forecast");
-    const forecastDaysSelect = document.getElementById("forecastDays");
+    const radarFrame = document.getElementById("radarFrame");
+    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
 
-    function updateForecast(query) {
-      const daysToShow = parseInt(forecastDaysSelect.value);
-
-      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&appid=${apiKey}&units=metric`)
+    function updateForecast(city) {
+      if (!city) return;
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`)
         .then(res => res.json())
         .then(data => {
           if (data.cod !== "200") {
             forecastEl.innerHTML = "<p>City not found.</p>";
             return;
           }
-
           const daily = {};
           data.list.forEach(item => {
             const date = item.dt_txt.split(" ")[0];
             if (!daily[date]) daily[date] = [];
             daily[date].push(item);
           });
-
-          const days = Object.keys(daily).slice(0, daysToShow);
+          const days = Object.keys(daily).slice(0, 2);
           forecastEl.innerHTML = days.map(date => {
             const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
             const description = daily[date][0].weather[0].description;
@@ -267,57 +206,64 @@
     }
 
     input.addEventListener("input", () => {
-      const query = input.value;
-      if (query.length > 2) {
-        updateForecast(query);
-      }
+      const city = input.value.trim();
+      localStorage.setItem("lastCity", city);
+      updateForecast(city);
     });
 
-    forecastDaysSelect.addEventListener("change", () => {
-      const query = input.value;
-      if (query.length > 2) {
-        updateForecast(query);
-      }
-    });
-
-    const header = document.getElementById("weatherBotHeader");
-    const chat = document.getElementById("weatherBotChat");
-    const botInput = document.getElementById("botInput");
-
-    header.addEventListener("click", () => {
-      chat.style.display = chat.style.display === "block" ? "none" : "block";
-    });
-
-    function offlineChatbot() {
-      const userMsg = botInput.value.trim().toLowerCase();
-      if (!userMsg) return;
-
-      addMsg("You", userMsg);
-
-      let response = "Sorry, I don't understand.";
-      if (userMsg.includes("flood")) {
-        response = "⚠️ Check the radar and local flood alerts. Stay safe and avoid low-lying areas.";
-      } else if (userMsg.includes("cyclone")) {
-        response = "🌀 Cyclone risk depends on your location. Check BoM alerts for real-time updates.";
-      } else if (userMsg.includes("fire") || userMsg.includes("bushfire")) {
-        response = "🔥 Fire danger? Prepare a bushfire survival plan and listen for emergency updates.";
-      } else if (userMsg.includes("stay home")) {
-        response = "🏠 If alerts are active or travel is unsafe, it's best to stay home.";
-      } else if (userMsg.includes("storm")) {
-        response = "⛈️ Check your radar and warnings. Storms may bring hail, strong wind, or flash flooding.";
-      }
-
-      addMsg("Bot", response);
-      botInput.value = "";
-      chat.scrollTop = chat.scrollHeight;
+    // Auto-fill with geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
+          .then(res => res.json())
+          .then(data => {
+            const city = data.city || data.locality || data.principalSubdivision;
+            input.value = city;
+            updateForecast(city);
+            radarFrame.src = `https://www.rainviewer.com/map.html?loc=${latitude},${longitude},7&oFa=0&c=1&overlay=radar&layer=radar&sm=1&sn=1&hu=1`;
+          });
+      });
     }
 
-    function addMsg(sender, msg) {
-      chat.innerHTML += `<p><strong>${sender}:</strong> ${msg}</p>`;
-    }
+    // Emergency checklist generator
+    const threatSelect = document.getElementById("threatSelect");
+    const checklistOutput = document.getElementById("checklistOutput");
 
-    botInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") offlineChatbot();
+    const checklistData = {
+      cyclone: [
+        "Water & non-perishable food for 3 days",
+        "Battery-powered radio",
+        "Spare batteries & phone chargers",
+        "Evacuation plan and emergency contacts",
+        "Medical supplies & prescriptions"
+      ],
+      flood: [
+        "Waterproof bags for documents",
+        "Sandbags and plastic sheeting",
+        "Gum boots and waterproof clothing",
+        "First aid kit",
+        "Emergency contact list"
+      ],
+      bushfire: [
+        "P2 face masks",
+        "Wool blankets and fire-safe clothing",
+        "Battery-powered radio",
+        "Bushfire survival plan",
+        "Water supply and food for 3 days"
+      ]
+    };
+
+    threatSelect.addEventListener("change", () => {
+      const threat = threatSelect.value;
+      if (!threat) {
+        checklistOutput.innerHTML = "";
+        return;
+      }
+      const items = checklistData[threat];
+      checklistOutput.innerHTML = `
+        <h4>Checklist for ${threat.charAt(0).toUpperCase() + threat.slice(1)}:</h4>
+        <ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
     });
   </script>
 </body>
