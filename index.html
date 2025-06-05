@@ -55,8 +55,47 @@
       font-size: 14px;
     }
 
+    .alert-bar {
+      background-color: #cc0000;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+    }
+
+    .main-layout {
+      display: flex;
+    }
+
+    .sidebar {
+      background-color: #1e1e1e;
+      min-width: 200px;
+      padding: 20px;
+      color: white;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
     .container {
       padding: 20px;
+      flex-grow: 1;
     }
 
     input[type="text"] {
@@ -90,6 +129,8 @@
   </style>
 </head>
 <body>
+  <div class="alert-bar">⚠️ A Severe Weather Warning is in effect for your area.</div>
+
   <header>
     <div>
       <label for="themeSelect">🌈 Theme:</label>
@@ -103,45 +144,58 @@
     <button id="themeToggle">🌙</button>
   </header>
 
-  <div class="container">
-    <h2>🌤️ 3-Day Forecast</h2>
-    <input type="text" id="cityInput" placeholder="Enter your city" />
-    <div id="forecast"></div>
-
-    <h2>🌧️ Live Radar Viewer</h2>
-    <iframe src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
-
-    <div class="guide">
-      <h2>🧰 Emergency Preparedness Guides</h2>
-
-      <h3>🌀 Cyclone Preparation</h3>
+  <div class="main-layout">
+    <nav class="sidebar">
       <ul>
-        <li>Trim trees and secure loose items around your home.</li>
-        <li>Have an evacuation plan and know your zone.</li>
-        <li>Store food, water, and emergency supplies for 3 days.</li>
+        <li><a href="#forecast">🌤️ Forecast</a></li>
+        <li><a href="#radar">📡 Radar</a></li>
+        <li><a href="#guides">🧰 Guides</a></li>
       </ul>
+    </nav>
 
-      <h3>🌊 Flood Safety Tips</h3>
-      <ul>
-        <li>Never drive or walk through floodwaters.</li>
-        <li>Move valuables and electronics to higher ground.</li>
-        <li>Prepare sandbags if flooding is expected.</li>
-      </ul>
+    <div class="container">
+      <h2 id="forecast">🌤️ 3-Day Forecast</h2>
+      <input type="text" id="cityInput" placeholder="Enter your city (optional)" />
+      <div id="forecastOutput">Loading your location-based forecast...</div>
 
-      <h3>🔥 Bushfire Survival Guide</h3>
-      <ul>
-        <li>Clear gutters and remove dry vegetation around your home.</li>
-        <li>Have a bushfire survival plan ready for your family.</li>
-        <li>Listen to emergency broadcasts and leave early if needed.</li>
-      </ul>
+      <h2 id="radar">🌧️ Live Radar Viewer</h2>
+      <iframe src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
+
+      <div class="guide" id="guides">
+        <h2>🧰 Emergency Preparedness Guides</h2>
+
+        <h3>🌀 Cyclone Preparation</h3>
+        <ul>
+          <li>Trim trees and secure loose items around your home.</li>
+          <li>Have an evacuation plan and know your zone.</li>
+          <li>Store food, water, and emergency supplies for 3 days.</li>
+        </ul>
+
+        <h3>🌊 Flood Safety Tips</h3>
+        <ul>
+          <li>Never drive or walk through floodwaters.</li>
+          <li>Move valuables and electronics to higher ground.</li>
+          <li>Prepare sandbags if flooding is expected.</li>
+        </ul>
+
+        <h3>🔥 Bushfire Survival Guide</h3>
+        <ul>
+          <li>Clear gutters and remove dry vegetation around your home.</li>
+          <li>Have a bushfire survival plan ready for your family.</li>
+          <li>Listen to emergency broadcasts and leave early if needed.</li>
+        </ul>
+      </div>
     </div>
   </div>
 
   <script>
     const toggleBtn = document.getElementById("themeToggle");
     const themeSelect = document.getElementById("themeSelect");
+    const forecastEl = document.getElementById("forecastOutput");
+    const input = document.getElementById("cityInput");
+    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
 
-    // Load saved mode and theme
+    // Theme loading
     const savedMode = localStorage.getItem("mode") || "light";
     const savedTheme = localStorage.getItem("theme") || "classic";
     document.body.classList.add(savedMode + "-mode");
@@ -149,7 +203,6 @@
     themeSelect.value = savedTheme;
     toggleBtn.textContent = savedMode === "dark" ? "☀️" : "🌙";
 
-    // Toggle light/dark mode
     toggleBtn.addEventListener("click", () => {
       document.body.classList.toggle("light-mode");
       document.body.classList.toggle("dark-mode");
@@ -158,7 +211,6 @@
       localStorage.setItem("mode", mode);
     });
 
-    // Change theme
     themeSelect.addEventListener("change", (e) => {
       const theme = e.target.value;
       document.body.classList.remove("theme-classic", "theme-cyclone", "theme-flood", "theme-bushfire");
@@ -166,10 +218,38 @@
       localStorage.setItem("theme", theme);
     });
 
-    // Weather API – OpenWeather 3-Day Forecast
-    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
-    const input = document.getElementById("cityInput");
-    const forecastEl = document.getElementById("forecast");
+    function getForecastByCoords(lat, lon) {
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cod !== "200") {
+            forecastEl.innerHTML = "<p>Weather data not available.</p>";
+            return;
+          }
+          const daily = {};
+          data.list.forEach(item => {
+            const date = item.dt_txt.split(" ")[0];
+            if (!daily[date]) daily[date] = [];
+            daily[date].push(item);
+          });
+          const days = Object.keys(daily).slice(0, 3);
+          forecastEl.innerHTML = days.map(date => {
+            const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
+            const description = daily[date][0].weather[0].description;
+            return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
+          }).join("");
+        });
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        getForecastByCoords(latitude, longitude);
+      },
+      (error) => {
+        forecastEl.innerHTML = "<p>Location access denied. Please enter your city above.</p>";
+      }
+    );
 
     input.addEventListener("input", () => {
       const query = input.value;
@@ -199,6 +279,7 @@
   </script>
 </body>
 </html>
+
 
 
 
