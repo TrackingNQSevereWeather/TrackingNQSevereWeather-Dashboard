@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GPO Emergency Dashboard</title>
+  <title>Emergency Weather Dashboard</title>
   <style>
     :root {
       --accent-color: #0066cc;
@@ -49,6 +49,10 @@
       font-size: 16px;
     }
 
+    #forecast {
+      margin-top: 15px;
+    }
+
     iframe {
       width: 100%;
       height: 400px;
@@ -56,29 +60,31 @@
       margin-top: 20px;
     }
 
-    .section {
+    .guide {
       margin-top: 30px;
     }
 
-    h2 {
+    .guide h3 {
       color: var(--accent-color);
     }
 
-    ul {
+    .guide ul {
       padding-left: 20px;
-    }
-
-    #checklist {
-      margin-top: 10px;
     }
   </style>
 </head>
 <body class="light-mode">
   <header>
     <div>
-      <label for="themeToggle">Theme:</label>
-      <button id="themeToggle">🌙</button>
+      <label for="themeSelect">🌈 Theme:</label>
+      <select id="themeSelect">
+        <option value="classic">Classic</option>
+        <option value="cyclone">Cyclone</option>
+        <option value="flood">Flood</option>
+        <option value="bushfire">Bushfire</option>
+      </select>
     </div>
+    <button id="themeToggle">🌙</button>
   </header>
 
   <div class="container">
@@ -87,60 +93,82 @@
     <div id="forecast"></div>
 
     <h2>🌧️ Live Radar Viewer</h2>
-    <iframe id="radar" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1"></iframe>
+    <iframe id="radar" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
 
-    <div class="section">
-      <h2>📡 Local Weather Station Feed</h2>
-      <div id="stationFeed">Loading...</div>
-    </div>
+    <div class="guide">
+      <h2>🧰 Emergency Preparedness Guides</h2>
 
-    <div class="section">
-      <h2>🗺️ Disaster Impact Map</h2>
-      <iframe src="https://www.google.com/maps/d/embed?mid=1IRp9ZHL4hP34kFZ4GwhpK5k4v6IxXcU&ehbc=2E312F"></iframe>
-    </div>
-
-    <div class="section">
-      <h2>📦 Emergency Supply Checklist</h2>
-      <label for="disasterType">Disaster Type:</label>
-      <select id="disasterType">
-        <option value="cyclone">Cyclone</option>
-        <option value="flood">Flood</option>
-        <option value="fire">Fire</option>
-      </select>
-      <button onclick="generateChecklist()">Generate Checklist</button>
-      <ul id="checklist"></ul>
-    </div>
-
-    <div class="section">
-      <h2>🔌 Power Outage Links</h2>
+      <h3>🌀 Cyclone Preparation</h3>
       <ul>
-        <li><a href="https://www.energex.com.au/outages" target="_blank">Energex (Australia)</a></li>
-        <li><a href="https://outagemap.duke-energy.com/" target="_blank">Duke Energy (U.S.)</a></li>
-        <li><a href="https://outagecenter.pge.com/" target="_blank">PG&E (U.S.)</a></li>
+        <li>Trim trees and secure loose items around your home.</li>
+        <li>Have an evacuation plan and know your zone.</li>
+        <li>Store food, water, and emergency supplies for 3 days.</li>
       </ul>
+
+      <h3>🌊 Flood Safety Tips</h3>
+      <ul>
+        <li>Never drive or walk through floodwaters.</li>
+        <li>Move valuables and electronics to higher ground.</li>
+        <li>Prepare sandbags if flooding is expected.</li>
+      </ul>
+
+      <h3>🔥 Bushfire Survival Guide</h3>
+      <ul>
+        <li>Clear gutters and remove dry vegetation around your home.</li>
+        <li>Have a bushfire survival plan ready for your family.</li>
+        <li>Listen to emergency broadcasts and leave early if needed.</li>
+      </ul>
+
+      <h2>🔌 Power Outage Resources</h2>
+      <ul>
+        <li><a href="https://www.energex.com.au/outages" target="_blank">Energex (QLD)</a></li>
+        <li><a href="https://outagemap.ausgrid.com.au/" target="_blank">Ausgrid (NSW)</a></li>
+        <li><a href="https://outagemap.duke-energy.com/" target="_blank">Duke Energy (U.S.)</a></li>
+        <li><a href="https://poweroutage.us/" target="_blank">PowerOutage.us</a></li>
+      </ul>
+
+      <h2>🚧 Road Closures & Traffic Impacts</h2>
+      <iframe src="https://www.livetraffic.com/desktop.html" title="Live Traffic Map"></iframe>
     </div>
   </div>
 
   <script>
     const toggleBtn = document.getElementById("themeToggle");
+    const themeSelect = document.getElementById("themeSelect");
+
+    // Load saved mode and theme
+    const savedMode = localStorage.getItem("mode") || "light";
+    const savedTheme = localStorage.getItem("theme") || "classic";
+    document.body.classList.add(savedMode + "-mode");
+    document.body.classList.add("theme-" + savedTheme);
+    themeSelect.value = savedTheme;
+    toggleBtn.textContent = savedMode === "dark" ? "☀️" : "🌙";
+
+    // Toggle light/dark mode
     toggleBtn.addEventListener("click", () => {
       document.body.classList.toggle("light-mode");
       document.body.classList.toggle("dark-mode");
-      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+      const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
+      toggleBtn.textContent = mode === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("mode", mode);
     });
 
-    // Weather API Forecast
+    // Change theme
+    themeSelect.addEventListener("change", (e) => {
+      const theme = e.target.value;
+      document.body.classList.remove("theme-classic", "theme-cyclone", "theme-flood", "theme-bushfire");
+      document.body.classList.add("theme-" + theme);
+      localStorage.setItem("theme", theme);
+    });
+
+    // Weather API – OpenWeather 3-Day Forecast
     const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
     const input = document.getElementById("cityInput");
     const forecastEl = document.getElementById("forecast");
-    const radarFrame = document.getElementById("radar");
 
     input.addEventListener("input", () => {
-      const query = input.value.trim();
+      const query = input.value;
       if (query.length > 2) {
-        if (query.toLowerCase().includes("australia")) {
-          radarFrame.src = "https://www.rainviewer.com/map.html?loc=AU&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
-        }
         fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&appid=${apiKey}&units=metric`)
           .then(res => res.json())
           .then(data => {
@@ -160,26 +188,15 @@
               const description = daily[date][0].weather[0].description;
               return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
             }).join("");
+
+            if (query.toLowerCase().includes("australia")) {
+              document.getElementById("radar").src = "https://www.rainviewer.com/map.html?loc=au&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
+            } else {
+              document.getElementById("radar").src = "https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
+            }
           });
       }
     });
-
-    function generateChecklist() {
-      const type = document.getElementById("disasterType").value;
-      const checklist = {
-        cyclone: ["Water (3 days)", "Canned food", "Batteries", "First-aid kit", "Evacuation plan"],
-        flood: ["Sandbags", "Move valuables", "Waterproof bags", "Food supply", "Evacuation plan"],
-        fire: ["Fire extinguisher", "Respirator masks", "Evacuation plan", "Important docs", "Long clothing"]
-      };
-      document.getElementById("checklist").innerHTML = checklist[type].map(i => `<li>${i}</li>`).join("");
-    }
-
-    // Simulated Local Weather Station Feed (replace with real API if needed)
-    document.getElementById("stationFeed").innerHTML = `
-      <p><strong>Temperature:</strong> 27.4°C</p>
-      <p><strong>Humidity:</strong> 68%</p>
-      <p><strong>Wind Speed:</strong> 14 km/h</p>
-    `;
   </script>
 </body>
 </html>
