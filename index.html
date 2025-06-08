@@ -7,12 +7,10 @@
   <style>
     :root {
       --accent-color: #0066cc;
-      --light-bg: #f4f6f9;
+      --light-bg: #f8f9fa;
       --dark-bg: #121212;
       --light-text: #111;
       --dark-text: #eee;
-      --card-bg: white;
-      --dark-card-bg: #1f1f1f;
     }
 
     body {
@@ -20,7 +18,6 @@
       font-family: "Segoe UI", sans-serif;
       background-color: var(--light-bg);
       color: var(--light-text);
-      display: flex;
       transition: background-color 0.3s, color 0.3s;
     }
 
@@ -29,148 +26,129 @@
       color: var(--dark-text);
     }
 
-    .sidebar {
-      width: 220px;
-      background: var(--accent-color);
+    header {
+      background-color: var(--accent-color);
       color: white;
-      min-height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
-    .sidebar h1 {
-      font-size: 20px;
-      margin-bottom: 30px;
+    header select, header button {
+      padding: 6px 10px;
+      font-size: 14px;
+      margin: 5px;
     }
 
-    .sidebar button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .sidebar button:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .main {
-      flex: 1;
+    .container {
       padding: 20px;
       max-width: 1000px;
       margin: auto;
     }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    body.dark-mode .card {
-      background: var(--dark-card-bg);
-    }
-
-    h2 {
-      margin-top: 0;
+    input[type="text"], select {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 10px;
     }
 
     iframe {
       width: 100%;
       height: 400px;
       border: none;
+      margin-top: 20px;
       border-radius: 10px;
     }
 
-    .checklist-result label {
-      display: block;
-      margin: 6px 0;
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    button.toggle-mode {
-      margin-top: 10px;
-      background-color: #444;
-      color: white;
-      padding: 8px 12px;
+    body.dark-mode .card {
+      background: #1f1f1f;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .checklist label {
+      display: block;
+      margin: 5px 0;
+    }
+
+    .checklist-result {
+      padding: 10px;
+      background: #e7f0fc;
       border-radius: 5px;
-      border: none;
-      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    body.dark-mode .checklist-result {
+      background: #2a2a2a;
     }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h1>⚡ TNSW Dashboard</h1>
-    <button onclick="toggleTheme()">🌓 Toggle Dark Mode</button>
-    <button onclick="showRadar()">🌧️ Show Radar</button>
-    <button onclick="showModel()">🌪️ Storm Model</button>
-    <button onclick="scrollToSection('forecast')">📍 Forecast</button>
-    <button onclick="scrollToSection('checklist')">📋 Checklist</button>
-  </div>
-
-  <div class="main">
-    <div class="card" id="forecast">
-      <h2>📍 Auto-Detected Forecast</h2>
-      <select id="forecastSelect">
-        <option value="current">Loading location...</option>
-      </select>
-      <div id="forecastContent"></div>
+  <header>
+    <div>
+      <label for="themeToggle">🌓 Theme:</label>
+      <button id="themeToggle">Toggle Mode</button>
     </div>
-
-    <div class="card">
-      <h2 id="radarTitle">🌧️ Radar Viewer</h2>
-      <iframe id="viewerFrame" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1"></iframe>
-    </div>
-
-    <div class="card" id="checklist">
-      <h2>📋 Emergency Supply Checklist</h2>
-      <label for="threatType">Select Threat Type:</label>
+    <div>
+      <label for="threatType">Threat Type:</label>
       <select id="threatType">
         <option value="cyclone">Cyclone</option>
         <option value="flood">Flood</option>
         <option value="bushfire">Bushfire</option>
       </select>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h2>📍 Auto-Detected Forecast</h2>
+      <select id="forecastSelect">
+        <option value="current">Loading location...</option>
+      </select>
+      <div id="forecast"></div>
+    </div>
+
+    <div class="card">
+      <h2>🌧️ Radar</h2>
+      <iframe id="radarFrame" src="https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1" allowfullscreen></iframe>
+    </div>
+
+    <div class="card">
+      <h2>📋 Emergency Supply Checklist</h2>
       <button onclick="generateChecklist()">Generate Checklist</button>
       <div class="checklist-result" id="checklistResult"></div>
     </div>
   </div>
 
   <script>
-    // Dark/Light Mode
-    function toggleTheme() {
+    // Dark/Light Mode Toggle
+    const toggleBtn = document.getElementById("themeToggle");
+    toggleBtn.addEventListener("click", () => {
       document.body.classList.toggle("dark-mode");
       localStorage.setItem("mode", document.body.classList.contains("dark-mode") ? "dark" : "light");
-    }
-    if (localStorage.getItem("mode") === "dark") document.body.classList.add("dark-mode");
-
-    // Scroll to card section
-    function scrollToSection(id) {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+    });
+    if (localStorage.getItem("mode") === "dark") {
+      document.body.classList.add("dark-mode");
     }
 
-    // Toggle Radar vs Model
-    const viewer = document.getElementById("viewerFrame");
-    function showRadar() {
-      document.getElementById("radarTitle").textContent = "🌧️ Radar Viewer";
-      viewer.src = "https://www.rainviewer.com/map.html?loc=auto&overlay=radar&layer=radar&sm=1&sn=1&hu=1";
-    }
-    function showModel() {
-      document.getElementById("radarTitle").textContent = "🌪️ Storm Model Viewer";
-      viewer.src = "https://embed.windy.com/embed2.html?lat=-19.3&lon=146.8&detailLat=-19.3&detailLon=146.8&width=650&height=450&zoom=7&level=surface&overlay=rain&menu=true&message=true";
-    }
-
-    // Forecast Fetch
-    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
-    const forecastEl = document.getElementById("forecastContent");
+    // Auto Forecast + Radar Focus
     const forecastSelect = document.getElementById("forecastSelect");
+    const forecastEl = document.getElementById("forecast");
+    const radarFrame = document.getElementById("radarFrame");
+    const apiKey = "7498bac3fe87828473f5a0538b5e76c5";
 
     function fetchForecast(city) {
       fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`)
@@ -180,17 +158,25 @@
             forecastEl.innerHTML = "<p>City not found.</p>";
             return;
           }
+
           const daily = {};
           data.list.forEach(item => {
             const date = item.dt_txt.split(" ")[0];
             if (!daily[date]) daily[date] = [];
             daily[date].push(item);
           });
-          const days = Object.keys(daily).slice(0, 2);
+
+          const days = Object.keys(daily).slice(0, 5);
           forecastEl.innerHTML = days.map(date => {
-            const avgTemp = (daily[date].reduce((sum, val) => sum + val.main.temp, 0) / daily[date].length).toFixed(1);
-            const description = daily[date][0].weather[0].description;
-            return `<p><strong>${date}:</strong> ${description}, Avg Temp: ${avgTemp}°C</p>`;
+            const dayData = daily[date];
+            const avgTemp = (dayData.reduce((sum, val) => sum + val.main.temp, 0) / dayData.length).toFixed(1);
+            const descCounts = {};
+            dayData.forEach(val => {
+              const desc = val.weather[0].description;
+              descCounts[desc] = (descCounts[desc] || 0) + 1;
+            });
+            const mostCommonDesc = Object.entries(descCounts).sort((a, b) => b[1] - a[1])[0][0];
+            return `<p><strong>${date}:</strong> ${mostCommonDesc}, Avg Temp: ${avgTemp}°C</p>`;
           }).join("");
         });
     }
@@ -205,20 +191,38 @@
             const city = data.name;
             forecastSelect.innerHTML = `<option value="${city}">${city}</option>`;
             fetchForecast(city);
-            viewer.src = `https://www.rainviewer.com/map.html?loc=${lat},${lon},7&overlay=radar&layer=radar&sm=1&sn=1&hu=1`;
+            radarFrame.src = `https://www.rainviewer.com/map.html?loc=${lat},${lon},7&oFa=0&c=1&layer=radar&sm=1&sn=1&hu=1`;
           });
       }, () => {
-        forecastSelect.innerHTML = `<option>Location not found</option>`;
+        forecastSelect.innerHTML = `<option>Unable to detect location</option>`;
       });
     }
 
-    // Checklist Generator
+    // Emergency Supply Checklist Generator
     function generateChecklist() {
       const threat = document.getElementById("threatType").value;
       const checklist = {
-        cyclone: ["🔦 Flashlight", "💧 Water", "📻 Radio", "📑 Plan", "🧰 First-aid"],
-        flood: ["🧱 Sandbags", "📦 Go-bag", "🗺️ Route", "🔌 Charge devices", "🚘 Fuel"],
-        bushfire: ["🔥 Extinguisher", "👕 Protective clothes", "🚪 Seal gaps", "🚗 Car", "📁 Documents"]
+        cyclone: [
+          "🔦 Flashlight with batteries",
+          "💧 3L water per person per day",
+          "📻 Battery radio for updates",
+          "📑 Evacuation plan ready",
+          "🧰 First-aid kit",
+        ],
+        flood: [
+          "🧱 Sandbags if flooding expected",
+          "📦 Emergency bag packed",
+          "🗺️ Know your evacuation route",
+          "🔌 Charge all devices",
+          "🚘 Fuel your car",
+        ],
+        bushfire: [
+          "🔥 Fire extinguisher & water hose",
+          "👕 Protective clothing",
+          "🚪 Seal gaps in doors/windows",
+          "🚗 Car ready to evacuate",
+          "📁 Documents in grab-bag"
+        ]
       };
       const items = checklist[threat] || [];
       document.getElementById("checklistResult").innerHTML = items.map(i => `<label><input type="checkbox"> ${i}</label>`).join("");
@@ -226,6 +230,5 @@
   </script>
 </body>
 </html>
-
 
 
